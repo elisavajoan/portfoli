@@ -16,7 +16,7 @@ button{all:unset;cursor:pointer}
 /* cabecera */
 .head{position:fixed;left:50%;top:max(20px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:100;
   width:var(--col);display:flex;padding:3px;gap:2px;background:var(--pill);border-radius:8px}
-.head button{flex:1;text-align:center;padding:7px 4px;border-radius:6px;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;transition:background .2s}
+.head button{flex:1;text-align:center;padding:7px 4px;border-radius:6px;text-transform:lowercase;white-space:nowrap;transition:background .2s}
 .head button:hover{background:rgba(255,255,255,.45)}
 .head button[aria-pressed=true]{background:var(--on)}
 @media (max-width:400px){.head button{font-size:10.5px;padding:7px 2px}}
