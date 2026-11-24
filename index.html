@@ -58,18 +58,18 @@ button{all:unset;cursor:pointer}
 <body>
 
 <nav class="head" aria-label="Secciones" id="head">
-  <button data-f="todo">Joan</button>
-  <button data-f="audiovisual">Audiovisual</button>
-  <button data-f="editorial">Editorial</button>
-  <button data-f="branding">Branding</button>
-  <button data-f="info">Info</button>
+  <button data-f="arxiu">Arxiu</button>
+  <button data-f="sobre">Sobre mi</button>
+  <button data-f="contacte">Contacte</button>
 </nav>
 
 <div class="stage" id="stage"><div class="wheel" id="wheel"></div></div>
 <div class="label" id="label" aria-live="polite"></div>
 
-<div class="info" id="info"><div>
+<div class="info" id="sobre"><div>
   <p>Diseño gráfico. Audiovisual, editorial y branding. Barcelona.</p>
+</div></div>
+<div class="info" id="contacte"><div>
   <a href="mailto:tu-correo@dominio.com">tu-correo@dominio.com</a>
   <a href="https://instagram.com/tu_usuario" target="_blank" rel="noopener">Instagram</a>
 </div></div>
@@ -142,17 +142,17 @@ modal.addEventListener("click",e=>{if(e.target===modal||e.target===media)closeMo
 addEventListener("keydown",e=>{if(!modal.classList.contains("on"))return;
   if(e.key==="Escape")closeModal();if(e.key==="ArrowRight")$("#next").click();if(e.key==="ArrowLeft")$("#prev").click()});
 
-/* cabecera: filtra la rueda o muestra info */
+/* cabecera: Arxiu muestra la rueda; Sobre mi y Contacte, su texto */
 function setFilter(f){closeModal();
-  const info=f==="info";stage.classList.toggle("off",info);$("#info").classList.toggle("on",info);label.textContent="";
-  if(!info)cards.forEach(c=>c.hidden=!(f==="todo"||c.dataset.tag===f));
+  stage.classList.toggle("off",f!=="arxiu");label.textContent="";
+  ["sobre","contacte"].forEach(id=>$("#"+id).classList.toggle("on",f===id));
   layout();
   document.querySelectorAll("#head button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===f));
-  const u=new URL(location.href);f==="todo"?u.searchParams.delete("filter"):u.searchParams.set("filter",f);try{history.replaceState(null,"",u)}catch(e){}
+  const u=new URL(location.href);f==="arxiu"?u.searchParams.delete("s"):u.searchParams.set("s",f);try{history.replaceState(null,"",u)}catch(e){}
 }
 document.querySelectorAll("#head button").forEach(b=>b.onclick=()=>setFilter(b.dataset.f));
-const start=new URLSearchParams(location.search).get("filter");
-setFilter(["audiovisual","editorial","branding","info"].includes(start)?start:"todo");
+const start=new URLSearchParams(location.search).get("s");
+setFilter(["sobre","contacte"].includes(start)?start:"arxiu");
 </script>
 </body>
 </html>
