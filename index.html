@@ -24,7 +24,7 @@ button{all:unset;cursor:pointer}
 /* rueda 3D (de la web anterior) */
 .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;perspective:4500px;overflow:hidden;touch-action:none;transition:opacity .3s}
 .stage.off{opacity:0;pointer-events:none}
-.wheel{position:relative;width:var(--cw);aspect-ratio:3/4;transform-style:preserve-3d;
+.wheel{position:relative;width:var(--cw);height:var(--cw);transform-style:preserve-3d;
   transform:rotateX(-12deg) rotateZ(18deg) rotateY(calc(var(--a,0) * 1deg));will-change:transform}
 .card{position:absolute;inset:0;overflow:hidden;transform-style:preserve-3d;cursor:pointer;
   transform:rotateY(calc(var(--i) * var(--step) * 1deg)) translateZ(var(--r));transition:transform .4s ease-out}
@@ -109,9 +109,9 @@ const cards=PROJECTS.map((p,i)=>{
 
 /* coloca las tarjetas visibles en círculo; el radio crece con el número de tarjetas */
 function layout(){
+  // medidas de la web anterior: tarjeta cuadrada del 12% del ancho, radio 380px (en pantallas estrechas se escala en proporción)
   const vis=cards.filter(c=>!c.hidden),n=vis.length;
-  const cw=Math.max(90,Math.min(170,innerWidth*.12,innerHeight*.17));
-  const r=Math.max(cw*1.1,Math.min(innerWidth*.42,(cw*1.25)/(2*Math.tan(Math.PI/Math.max(n,3)))));
+  const cw=Math.max(80,innerWidth*.12),r=cw*(380/(1440*.12));
   wheel.style.setProperty("--cw",cw+"px");wheel.style.setProperty("--r",r+"px");wheel.style.setProperty("--step",360/Math.max(n,1));
   vis.forEach((c,k)=>c.style.setProperty("--i",k));
 }
