@@ -5,114 +5,102 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Joan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&display=swap">
 <style>
-:root{--bg:#000;--fg:#f2f2f2;--dim:#8a8a8a;--island:rgba(18,18,18,.72);color-scheme:dark}
+:root{--bg:#ebebeb;--fg:#111;--dim:#8c8c8c;--pill:#d4d4d4;--on:#f6f6f6;--col:min(420px,calc(100vw - 32px));color-scheme:light}
 *{box-sizing:border-box;margin:0}
-html,body{height:100%;background:var(--bg);color:var(--fg);font:500 13px/1.3 "Archivo",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:var(--bg);color:var(--fg);font:600 12px/1.25 "Archivo",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 button{all:unset;cursor:pointer}
-:focus-visible{outline:1px solid var(--fg);outline-offset:3px}
+:focus-visible{outline:1px solid var(--fg);outline-offset:2px}
 
-.reel{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none}
+/* cabecera */
+.head{position:fixed;left:50%;top:max(20px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:10;
+  width:var(--col);display:flex;padding:3px;gap:2px;background:var(--pill);border-radius:8px}
+.head button{flex:1;text-align:center;padding:7px 4px;border-radius:6px;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;transition:background .2s}
+.head button:hover{background:rgba(255,255,255,.45)}
+.head button[aria-pressed=true]{background:var(--on)}
+@media (max-width:400px){.head button{font-size:10.5px;padding:7px 2px}}
+
+/* carrusel vertical */
+.reel{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}
 .reel::-webkit-scrollbar{display:none}
-.slide{height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;overflow:hidden;display:grid;place-items:center}
-.slide img,.slide video{width:100%;height:100%;display:block;object-fit:cover}
-.slide.contain img,.slide.contain video{object-fit:contain;padding:clamp(64px,10vh,110px) clamp(16px,6vw,96px)}
+.slide{height:100dvh;scroll-snap-align:center;scroll-snap-stop:always;display:grid;place-items:center;padding:84px 16px 40px}
+.slide[hidden]{display:none}
+figure{width:var(--col);display:grid;gap:10px}
+figure img,figure video{width:100%;max-height:56vh;object-fit:contain;display:block;cursor:pointer}
+figcaption{display:flex;justify-content:space-between;gap:16px}
+figcaption span{color:var(--dim);font-weight:400}
 
-.info{padding:0 max(16px,env(safe-area-inset-left,0px));text-align:center;display:grid;gap:28px;justify-items:center}
-.info p{font-size:clamp(20px,2.6vw,32px);font-weight:400;line-height:1.2;max-width:22ch;text-wrap:balance}
-.info a{color:var(--dim);text-decoration:none}
-.info a:hover{color:var(--fg)}
-
-/* isla */
-.island{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:10;
-  background:var(--island);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
-  border-radius:22px;min-width:min(280px,calc(100vw - 32px));max-width:calc(100vw - 32px);overflow:hidden;
-  transition:border-radius .35s,width .35s}
-.bar{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:12px 18px;width:100%;box-sizing:border-box}
-.bar .now{color:var(--dim);transition:opacity .25s}
-.menu{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s}
-.island.open .menu{grid-template-rows:1fr}
-.menu>div{overflow:hidden}
-.menu ul{list-style:none;padding:2px 18px 14px;display:grid;gap:9px}
-.menu li button{color:var(--dim)}
-.menu li button:hover,.menu li button[aria-current=true]{color:var(--fg)}
-
-.sound{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:10;
-  background:var(--island);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:16px;padding:8px 12px;color:var(--fg)}
-.sound[hidden]{display:none}
-
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.info{width:var(--col);display:grid;gap:16px}
+.info p{font-weight:400;font-size:15px;line-height:1.35}
+.info a{color:var(--fg)}
 </style>
 </head>
 <body>
 
-<nav class="island" id="island" aria-label="Proyectos">
-  <button class="bar" id="toggle" aria-expanded="false" aria-controls="menu"><span>Joan</span><span class="now" id="now"></span></button>
-  <div class="menu" id="menu"><div><ul id="list"></ul></div></div>
+<nav class="head" aria-label="Secciones" id="head">
+  <button data-f="todo">Joan</button>
+  <button data-f="audiovisual">Audiovisual</button>
+  <button data-f="editorial">Editorial</button>
+  <button data-f="branding">Branding</button>
+  <button data-f="info">Info</button>
 </nav>
 
 <main class="reel" id="reel"></main>
-<button class="sound" id="sound" hidden>Sonido</button>
 
 <script>
-/* Proyectos. Cada uno puede tener varias imágenes o vídeos; cada uno ocupa una pantalla.
-   fit:"contain" muestra la pieza entera sobre negro (para gráfica plana); sin fit, llena la pantalla. */
+/* Proyectos: cada imagen o vídeo es una pantalla del carrusel. tag: audiovisual | editorial | branding */
 const A="assets/";
 const PROJECTS=[
-  {t:"Cal Besoret",m:["besoret-2","besoret-1","besoret-4","besoret-7","besoret-3","besoret-5","besoret-6"]},
-  {t:"MACBA Trenta",v:"macba"},
-  {t:"A Alcoi",m:["alcoi-1","alcoi-3","alcoi-2"],fit:"contain"},
-  {t:"Raly",v:"raly"},
-  {t:"Caliu",m:["caliu-1"],fit:"contain"},
-  {t:"Tipografía cinética",v:"tipo-cinetica",fit:"contain"},
-  {t:"Bricolage Grotesque",m:["bricolage-1"],fit:"contain"},
-  {t:"Gràcies",v:"gracies"}
+  {t:"Cal Besoret",tag:"branding",m:["besoret-2","besoret-1","besoret-4","besoret-7","besoret-3","besoret-5","besoret-6"]},
+  {t:"MACBA Trenta",tag:"audiovisual",v:"macba"},
+  {t:"A Alcoi",tag:"editorial",m:["alcoi-1","alcoi-3","alcoi-2"]},
+  {t:"Raly",tag:"audiovisual",v:"raly"},
+  {t:"Caliu",tag:"editorial",m:["caliu-1"]},
+  {t:"Tipografía cinética",tag:"audiovisual",v:"tipo-cinetica"},
+  {t:"Bricolage Grotesque",tag:"editorial",m:["bricolage-1"]},
+  {t:"Gràcies",tag:"audiovisual",v:"gracies"}
 ];
-const INFO={t:"Info",text:"Diseño gráfico. Audiovisual, editorial y branding. Barcelona.",mail:"tu-correo@dominio.com",ig:"tu_usuario"};
+const INFO={text:"Diseño gráfico. Audiovisual, editorial y branding. Barcelona.",mail:"tu-correo@dominio.com",ig:"tu_usuario"};
 
-const $=s=>document.querySelector(s),reel=$("#reel"),list=$("#list"),island=$("#island"),now=$("#now"),sound=$("#sound");
-const slides=[],firstOf=[];
-PROJECTS.forEach((p,i)=>{
-  firstOf.push(slides.length);
-  const items=p.v?[{video:p.v}]:p.m.map(n=>({img:n}));
+const $=s=>document.querySelector(s),reel=$("#reel"),slides=[];
+PROJECTS.forEach(p=>{
+  const items=p.v?[{v:p.v}]:p.m.map(n=>({i:n}));
   items.forEach((it,k)=>{
-    const s=document.createElement("section");s.className="slide"+(p.fit?" "+p.fit:"");s.dataset.p=i;
-    s.setAttribute("aria-label",p.t+(items.length>1?` ${k+1}/${items.length}`:""));
-    s.innerHTML=it.video
-      ?`<video src="${A+it.video}.mp4" poster="${A+it.video}-poster.jpg" muted loop playsinline preload="${slides.length<2?"auto":"none"}"></video>`
-      :`<img src="${A+it.img}.webp" alt="${p.t}" ${slides.length<2?"":'loading="lazy"'} decoding="async">`;
+    const s=document.createElement("section");s.className="slide";s.dataset.tag=p.tag;
+    const media=it.v
+      ?`<video src="${A+it.v}.mp4" poster="${A+it.v}-poster.jpg" muted loop playsinline preload="none" aria-label="${p.t}. Toca para activar el sonido"></video>`
+      :`<img src="${A+it.i}-t.webp" data-full="${A+it.i}.webp" alt="${p.t}" decoding="async" ${slides.length>1?'loading="lazy"':""}>`;
+    s.innerHTML=`<figure>${media}<figcaption>${p.t}<span>${items.length>1?`${k+1}/${items.length}`:""}</span></figcaption></figure>`;
     reel.append(s);slides.push(s)});
 });
-firstOf.push(slides.length);
-const info=document.createElement("section");info.className="slide";info.dataset.p=PROJECTS.length;info.id="info";
-info.innerHTML=`<div class="info"><p>${INFO.text}</p><a href="mailto:${INFO.mail}">${INFO.mail}</a><a href="https://instagram.com/${INFO.ig}" target="_blank" rel="noopener">Instagram</a></div>`;
+const info=document.createElement("section");info.className="slide";info.dataset.tag="info";
+info.innerHTML=`<div class="info"><p>${INFO.text}</p><p><a href="mailto:${INFO.mail}">${INFO.mail}</a><br><a href="https://instagram.com/${INFO.ig}" target="_blank" rel="noopener">Instagram</a></p></div>`;
 reel.append(info);slides.push(info);
 
-[...PROJECTS,INFO].forEach((p,i)=>{const li=document.createElement("li");li.innerHTML=`<button>${p.t}</button>`;
-  li.firstChild.onclick=()=>{slides[firstOf[i]].scrollIntoView({behavior:"smooth"});setOpen(false)};list.append(li)});
-
-function setOpen(o){island.classList.toggle("open",o);$("#toggle").setAttribute("aria-expanded",o)}
-$("#toggle").onclick=()=>setOpen(!island.classList.contains("open"));
-addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false)});
-reel.addEventListener("click",()=>setOpen(false));
-
-/* pantalla activa: nombre en la isla, reproducir su vídeo, pausar el resto */
-let muted=true,active=null;
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;active=e.target;const p=+active.dataset.p;
-  now.textContent=p<PROJECTS.length?PROJECTS[p].t:"";
-  [...list.querySelectorAll("button")].forEach((b,i)=>b.setAttribute("aria-current",i===p));
-  slides.forEach(s=>{const v=s.querySelector("video");if(!v)return;if(s===active){v.muted=muted;v.preload="auto";v.play().catch(()=>{})}else v.pause()});
-  sound.hidden=!active.querySelector("video");
-  const nx=slides[slides.indexOf(active)+1];if(nx){const i=nx.querySelector("img[loading]");if(i)i.loading="eager"}
-}),{root:reel,threshold:.6});
+/* imagen a mayor resolución cuando se acerca a pantalla; vídeo solo en la pantalla activa */
+const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target,img=s.querySelector("img[data-full]"),v=s.querySelector("video");
+  if(e.isIntersecting){if(img&&img.dataset.full){img.src=img.dataset.full;delete img.dataset.full}
+    if(v&&e.intersectionRatio>.6){v.preload="auto";v.play().catch(()=>{})}}
+  if(v&&e.intersectionRatio<.6)v.pause()}),{root:reel,threshold:[0,.6]});
 slides.forEach(s=>io.observe(s));
-sound.onclick=()=>{muted=!muted;sound.textContent=muted?"Sonido":"Silencio";const v=active&&active.querySelector("video");if(v)v.muted=muted};
+reel.addEventListener("click",e=>{const v=e.target.closest("video");if(v){v.muted=!v.muted;if(v.paused)v.play()}});
+
+/* filtros de la cabecera */
+function setFilter(f){
+  slides.forEach(s=>s.hidden=!(f==="todo"||f==="info"||s.dataset.tag===f||s.dataset.tag==="info"));
+  document.querySelectorAll("#head button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===f));
+  (f==="info"?info:slides.find(s=>!s.hidden)).scrollIntoView({behavior:f==="info"?"smooth":"instant"});
+  const u=new URL(location.href);f==="todo"?u.searchParams.delete("filter"):u.searchParams.set("filter",f);try{history.replaceState(null,"",u)}catch(e){}
+}
+document.querySelectorAll("#head button").forEach(b=>b.onclick=()=>setFilter(b.dataset.f));
+const start=new URLSearchParams(location.search).get("filter");
+setFilter(["audiovisual","editorial","branding","info"].includes(start)?start:"todo");
 
 /* teclado */
-addEventListener("keydown",e=>{const i=slides.indexOf(active);
-  if(["ArrowDown","PageDown"," "].includes(e.key)&&slides[i+1]){e.preventDefault();slides[i+1].scrollIntoView({behavior:"smooth"})}
-  if(["ArrowUp","PageUp"].includes(e.key)&&slides[i-1]){e.preventDefault();slides[i-1].scrollIntoView({behavior:"smooth"})}});
+addEventListener("keydown",e=>{const vis=slides.filter(s=>!s.hidden),r=reel.scrollTop,i=vis.findIndex(s=>Math.abs(s.offsetTop-r)<innerHeight/2);
+  if(["ArrowDown","PageDown"].includes(e.key)&&vis[i+1]){e.preventDefault();vis[i+1].scrollIntoView({behavior:"smooth"})}
+  if(["ArrowUp","PageUp"].includes(e.key)&&vis[i-1]){e.preventDefault();vis[i-1].scrollIntoView({behavior:"smooth"})}});
 </script>
 </body>
 </html>
