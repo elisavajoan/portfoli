@@ -109,9 +109,9 @@ const cards=PROJECTS.map((p,i)=>{
 
 /* coloca las tarjetas visibles en círculo; el radio crece con el número de tarjetas */
 function layout(){
-  // medidas de la web anterior: tarjeta cuadrada del 12% del ancho, radio 380px (en pantallas estrechas se escala en proporción)
+  // tarjeta cuadrada del 12% del ancho (como la web anterior); el radio deja un hueco pequeño entre tarjetas (GAP)
   const vis=cards.filter(c=>!c.hidden),n=vis.length;
-  const cw=Math.max(80,innerWidth*.12),r=cw*(380/(1440*.12));
+  const GAP=.14,cw=Math.max(80,innerWidth*.12),r=cw*(1+GAP)/(2*Math.tan(Math.PI/Math.max(n,3)));
   wheel.style.setProperty("--cw",cw+"px");wheel.style.setProperty("--r",r+"px");wheel.style.setProperty("--step",360/Math.max(n,1));
   vis.forEach((c,k)=>c.style.setProperty("--i",k));
 }
