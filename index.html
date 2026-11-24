@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joan · Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Portfolio en formato feed: una sola columna cronológica, cada entrada lleva una etiqueta y la barra filtra por etiqueta (?filter=). Misma paleta y tipos que archivo-nocturno.html. */
+:root{
+  --ink:#050505;--panel:#0b0b0c;--steel:#b8bcc1;--steel-hi:#eceef0;--data:#e8e5de;--dim:#5a5d61;--rec:#ff2a1f;
+  --line:rgba(184,188,193,.16);
+  --f-display:"Archivo","Arial Narrow",sans-serif;--f-body:"Archivo","Helvetica Neue",Arial,sans-serif;--f-osd:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--ink)}
+body{margin:0;background:var(--ink);color:var(--steel);font-family:var(--f-body);font-size:16px;line-height:1.5;overflow-x:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto}
+a{color:var(--steel-hi)}
+:focus-visible{outline:1px solid var(--steel-hi);outline-offset:3px}
+.osd{font-family:var(--f-osd);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.disp{font-family:var(--f-display);font-stretch:62%;font-weight:800;text-transform:uppercase;line-height:.9}
+.metal{background:linear-gradient(180deg,var(--steel-hi) 0%,var(--steel) 40%,#6c7076 52%,var(--steel) 68%,var(--steel-hi) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rec{display:inline-flex;align-items:center;gap:6px;color:var(--data)}
+.rec::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--rec);animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* cabecera */
+header{position:sticky;top:0;z-index:20;background:rgba(5,5,5,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:14px}
+.logo{font-family:var(--f-display);font-stretch:62%;font-weight:800;font-size:28px;text-transform:uppercase;color:var(--steel-hi);text-decoration:none;line-height:1}
+.top nav{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end}
+.top nav button,.filters button{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--dim);text-transform:inherit;letter-spacing:inherit}
+.top nav button:hover,.filters button:hover{color:var(--steel-hi)}
+.top nav button[aria-pressed=true]{color:var(--steel-hi)}
+.filters{display:flex;gap:6px 16px;flex-wrap:wrap;padding-block:0 12px}
+.filters button[aria-pressed=true]{color:var(--data)}
+.filters button[aria-pressed=true]::before{content:"● ";color:var(--rec)}
+@media (max-width:640px){.top nav{display:none}}
+
+/* intro */
+.intro{padding-block:48px 40px;display:grid;gap:20px}
+.intro h1{font-size:clamp(56px,12vw,180px);margin:0}
+.intro .meta{display:flex;gap:8px 24px;flex-wrap:wrap;color:var(--dim)}
+
+/* feed */
+.feed{list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:96px 150px minmax(0,1fr);gap:20px;padding-block:22px;border-top:1px solid var(--line);
+  animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.item[hidden]{display:none}
+@media (max-width:760px){.item{grid-template-columns:auto 1fr;gap:6px 16px}.item .body{grid-column:1/-1}}
+.date{color:var(--dim)}
+.tag{color:var(--steel)}
+.tag button{all:unset;cursor:pointer}
+.tag button:hover{color:var(--steel-hi)}
+.body{display:grid;gap:14px;min-width:0}
+.body h2{margin:0;font-size:clamp(28px,4vw,52px);color:var(--steel-hi)}
+.body p{margin:0;max-width:60ch;font-weight:300;font-size:clamp(17px,1.6vw,21px);line-height:1.4;color:var(--steel)}
+.body p.big{font-family:var(--f-display);font-stretch:75%;font-weight:600;font-size:clamp(26px,3.6vw,46px);line-height:1.05;color:var(--steel-hi);max-width:24ch;text-wrap:balance}
+.more{justify-self:start;background:none;border:1px solid var(--line);color:var(--steel-hi);font:inherit;padding:6px 10px;cursor:pointer}
+.more:hover{border-color:var(--steel-hi)}
+.extra{display:grid;gap:10px;max-width:60ch;font-weight:300}
+.extra[hidden]{display:none}
+.extra dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0}
+.extra dt{color:var(--dim)}.extra dd{margin:0;color:var(--data)}
+
+/* miniaturas */
+.thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;padding-bottom:4px}
+.thumb{position:relative;flex:0 0 auto;width:clamp(150px,22vw,260px);aspect-ratio:1;background:var(--panel);border:0;padding:0;cursor:pointer;overflow:hidden}
+.thumb.wide{aspect-ratio:16/9;width:clamp(260px,44vw,540px)}
+.thumb img,.thumb video{width:100%;height:100%;display:block;object-fit:cover;transition:transform .6s}
+.thumb:hover img,.thumb:focus-visible img,.thumb:hover video,.thumb:focus-visible video{transform:scale(1.04)}
+.thumb::after{content:"";position:absolute;inset:8px;pointer-events:none;opacity:0;transition:opacity .3s;--c:var(--steel-hi);
+  background:linear-gradient(var(--c),var(--c)) top left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) top right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top right/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/1px 14px no-repeat}
+.thumb:hover::after,.thumb:focus-visible::after{opacity:1}
+.thumb .lbl{position:absolute;left:10px;bottom:8px;right:10px;color:var(--data);text-shadow:0 0 4px #000;text-align:left;opacity:0;transition:opacity .3s}
+.thumb:hover .lbl,.thumb:focus-visible .lbl{opacity:1}
+.thumb .play{position:absolute;top:8px;left:10px;color:var(--data)}
+@media (hover:none){.thumb .lbl{opacity:1}}
+
+/*unused*/.clients{display:flex;flex-wrap:wrap;gap:4px 18px;font-family:var(--f-display);font-stretch:62%;font-weight:700;font-size:clamp(22px,3vw,38px);text-transform:uppercase;color:var(--steel-hi);line-height:1.1}
+.clients span:not(:last-child)::after{content:" /";color:var(--dim)}
+
+.empty{padding-block:40px;color:var(--dim)}
+
+footer{border-top:1px solid var(--line);margin-top:24px;padding-block:28px calc(40px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--dim)}
+footer a{color:var(--steel)}
+
+/* visor */
+.viewer{position:fixed;inset:0;z-index:50;background:#030303;display:grid;grid-template-rows:auto 1fr auto;gap:16px;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px))}
+.viewer[hidden]{display:none}
+.viewer .ctl{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.stage{min-height:0;display:grid;place-items:center}
+.stage img,.stage video{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.viewer .cap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--data)}
+.btn{font-family:var(--f-osd);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel-hi);background:transparent;border:1px solid var(--line);padding:8px 12px;cursor:pointer}
+.btn:hover{border-color:var(--steel-hi)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" href="#" data-go="todo">Joan<span style="color:var(--dim)">/</span>Archivo</a>
+      <nav class="osd" aria-label="Secciones">
+        <button data-go="todo">Feed</button>
+        <button data-go="proyectos">Proyectos</button>
+        <button data-go="sobre-mi">Sobre mí</button>
+        <button data-go="contacto">Contacto</button>
+      </nav>
+    </div>
+    <div class="filters osd" id="filters" role="toolbar" aria-label="Filtrar el feed"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <span class="osd rec">Feed abierto · <span id="clock">—</span></span>
+    <h1 class="disp metal">Material<br>encontrado</h1>
+    <div class="meta osd"><span>Diseño gráfico</span><span>Audiovisual · Editorial · Branding</span><span>Barcelona</span></div>
+  </section>
+
+  <ol class="feed" id="feed" aria-live="polite"></ol>
+  <p class="empty osd" id="empty" hidden>Sin señal para este filtro.</p>
+</main>
+
+<footer class="wrap osd">
+  <span>Joan · Portfolio de diseño</span>
+  <span><a href="#">Instagram</a> · <a href="mailto:tu-correo@dominio.com">tu-correo@dominio.com</a></span>
+  <span>© 2026 · Barcelona</span>
+</footer>
+
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Visor de imagen">
+  <div class="ctl osd"><button class="btn" id="v-prev">← Anterior</button><span class="rec" id="v-count">1 / 1</span><span style="display:flex;gap:8px"><button class="btn" id="v-next">Siguiente →</button><button class="btn" id="v-close">Cerrar · Esc</button></span></div>
+  <div class="stage" id="v-stage"></div>
+  <div class="cap osd"><span id="v-title"></span><span id="v-tag"></span></div>
+</div>
+
+<script>
+/* ==== CONTENIDO ====
+   Para cambiar un proyecto, edita su entrada aquí. Los archivos están en assets/.
+   tag: sobre-mi | audiovisual | editorial | branding | contacto
+   media: {img:"assets/x.webp", thumb:"assets/x-t.webp"} o {video:"assets/x.mp4", poster:"assets/x-poster.jpg"}
+   Fechas y textos marcados con (provisional) están pendientes de confirmar. */
+const TAGS={"todo":"Todo","sobre-mi":"Sobre mí","audiovisual":"Audiovisual","editorial":"Editorial","branding":"Branding","contacto":"Contacto"};
+const PROJECT_TAGS=["audiovisual","editorial","branding"];
+const A="assets/",im=(n,l)=>({img:A+n+".webp",thumb:A+n+"-t.webp",label:l}),vd=(n,l,sq)=>({video:A+n+".mp4",poster:A+n+"-poster.jpg",label:l,sq});
+const ITEMS=[
+  {date:"2026",tag:"branding",title:"Cal Besoret",text:"Etiqueta y packaging para el aceite de oliva virgen de Cal Besoret, de la Vila Manya. (provisional)",
+    media:[im("besoret-2","Las dos botellas"),im("besoret-1","Etiquetas"),im("besoret-4","Detalle tipográfico"),im("besoret-7","Detalle"),im("besoret-3","Bodegón"),im("besoret-5","Vista cenital"),im("besoret-6","Plano general")],
+    more:{"Disciplina":"Packaging · Branding","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"audiovisual",title:"MACBA Trenta",text:"Pieza animada sobre los treinta años del MACBA. (provisional)",
+    media:[vd("macba","MACBA Trenta · 00:28")],more:{"Disciplina":"Motion graphics","Duración":"00:28","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"editorial",title:"A Alcoi",text:"Portada para el disco A Alcoi de Ovidi Montllor, con letras textiles deshilachadas. (provisional)",
+    media:[im("alcoi-1","Portada"),im("alcoi-3","Detalle de las letras"),im("alcoi-2","Contraportada")],more:{"Disciplina":"Portada de disco","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"sobre-mi",big:"Estudio diseño gráfico y me interesa lo que pasa cuando una imagen se mueve, se imprime o se convierte en marca."},
+  {date:"2026",tag:"audiovisual",title:"Raly",text:"Título animado. (provisional)",
+    media:[vd("raly","Raly · 00:08")],more:{"Disciplina":"Audiovisual","Duración":"00:08","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"editorial",title:"Caliu",text:"Número 01 de CALIU, revista para Ca Vidal. (provisional)",
+    media:[im("caliu-1","Portada y contraportada")],more:{"Disciplina":"Editorial","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"audiovisual",title:"Tipografía cinética",text:"Animación tipográfica en rojo y negro. (provisional)",
+    media:[vd("tipo-cinetica","Loop · 00:05",true)],more:{"Disciplina":"Motion","Formato":"1:1","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"editorial",title:"Bricolage Grotesque",text:"Espécimen tipográfico de la Bricolage Grotesque. (provisional)",
+    media:[im("bricolage-1","Espécimen")],more:{"Disciplina":"Tipografía · Editorial","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"audiovisual",title:"Gràcies",text:"Cierre animado con tipografía caligráfica. (provisional)",
+    media:[vd("gracies","Gràcies · 00:15")],more:{"Disciplina":"Audiovisual","Duración":"00:15","Año":"2026 (provisional)"}},
+  {date:"2026",tag:"contacto",big:"¿Prácticas, encargos o una idea a medias? Escríbeme.",
+    more:{"Correo":"tu-correo@dominio.com","Instagram":"@tu_usuario","Ciudad":"Barcelona"},open:true}
+];
+
+/* ==== FEED ==== */
+const $=s=>document.querySelector(s),feed=$("#feed"),allMedia=[];
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ITEMS.forEach((it,n)=>{
+  const li=document.createElement("li");li.className="item";li.dataset.tag=it.tag;
+  li.innerHTML=`<span class="date osd">${it.date}</span><span class="tag osd"><button data-go="${it.tag}">[${TAGS[it.tag].toLowerCase()}]</button></span><div class="body"></div>`;
+  const b=li.querySelector(".body");
+  if(it.title)b.insertAdjacentHTML("beforeend",`<h2 class="disp">${it.title}</h2>`);
+  if(it.big)b.insertAdjacentHTML("beforeend",`<p class="big">${it.big}</p>`);
+  if(it.text)b.insertAdjacentHTML("beforeend",`<p>${it.text}</p>`);
+  if(it.media){const row=document.createElement("div");row.className="thumbs";
+    it.media.forEach(m=>{const idx=allMedia.push({...m,title:it.title,tag:it.tag})-1;
+      const t=document.createElement("button");t.className="thumb"+(m.video&&!m.sq?" wide":"");t.setAttribute("aria-label",`${it.title}: ${m.label}`);
+      if(m.video)t.innerHTML=`<video src="${m.video}" poster="${m.poster}" muted loop playsinline preload="none"></video><span class="play osd rec">Play</span>`;
+      else t.innerHTML=`<img src="${m.thumb}" alt="" loading="lazy" decoding="async">`;
+      t.insertAdjacentHTML("beforeend",`<span class="lbl osd">${m.label}</span>`);
+      t.onclick=()=>openViewer(idx);row.append(t)});
+    b.append(row)}
+  if(it.more){const id="x"+n,ex=Object.entries(it.more).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("");
+    b.insertAdjacentHTML("beforeend",`<button class="more osd" aria-expanded="${!!it.open}" aria-controls="${id}">${it.open?"−":"+"} Info</button><div class="extra osd" id="${id}" ${it.open?"":"hidden"}><dl>${ex}</dl></div>`);
+    const btn=b.querySelector(".more"),box=b.querySelector(".extra");
+    btn.onclick=()=>{const o=box.hidden;box.hidden=!o;btn.setAttribute("aria-expanded",o);btn.textContent=(o?"− ":"+ ")+"Info"}}
+  feed.append(li);
+});
+// los vídeos del feed se reproducen en silencio solo cuando están en pantalla
+if(!reduce&&"IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;
+  if(e.isIntersecting){v.preload="auto";v.play().catch(()=>{})}else v.pause()}),{threshold:.4});
+  document.querySelectorAll(".thumb video").forEach(v=>io.observe(v))}
+
+/* ==== FILTROS (?filter=…) ==== */
+const fl=$("#filters");
+Object.entries(TAGS).forEach(([k,v])=>fl.insertAdjacentHTML("beforeend",`<button data-go="${k}">${v}</button>`));
+function apply(f,push){
+  if(!TAGS[f]&&f!=="proyectos")f="todo";
+  let shown=0;
+  [...feed.children].forEach(li=>{const ok=f==="todo"||li.dataset.tag===f||(f==="proyectos"&&PROJECT_TAGS.includes(li.dataset.tag));
+    li.hidden=!ok;if(ok){shown++;li.style.animation="none";li.offsetHeight;li.style.animation=""}});
+  $("#empty").hidden=shown>0;
+  document.querySelectorAll("[data-go]").forEach(b=>{if(b.tagName==="BUTTON"&&!b.closest(".tag"))b.setAttribute("aria-pressed",b.dataset.go===f)});
+  if(push){const u=new URL(location.href);f==="todo"?u.searchParams.delete("filter"):u.searchParams.set("filter",f);try{history.pushState({f},"",u)}catch(e){}}
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(!b)return;e.preventDefault();apply(b.dataset.go,true);
+  if(scrollY>$("#feed").offsetTop)scrollTo({top:$("#feed").offsetTop-140,behavior:"smooth"})});
+addEventListener("popstate",()=>apply(new URLSearchParams(location.search).get("filter")||"todo",false));
+apply(new URLSearchParams(location.search).get("filter")||"todo",false);
+
+/* ==== VISOR ==== */
+let cur=-1;const stage=$("#v-stage");
+function openViewer(i){cur=(i+allMedia.length)%allMedia.length;const m=allMedia[cur];
+  stage.innerHTML=m.video?`<video src="${m.video}" poster="${m.poster}" controls autoplay playsinline loop></video>`:`<img src="${m.img}" alt="${m.title}: ${m.label}">`;
+  $("#v-count").textContent=`${cur+1} / ${allMedia.length}`;$("#v-title").textContent=`${m.title} · ${m.label}`;$("#v-tag").textContent=`[${TAGS[m.tag].toLowerCase()}]`;
+  $("#viewer").hidden=false;document.body.style.overflow="hidden";$("#v-close").focus()}
+function closeViewer(){$("#viewer").hidden=true;stage.innerHTML="";document.body.style.overflow="";cur=-1}
+$("#v-close").onclick=closeViewer;$("#v-prev").onclick=()=>openViewer(cur-1);$("#v-next").onclick=()=>openViewer(cur+1);
+addEventListener("keydown",e=>{if(cur<0)return;if(e.key==="Escape")closeViewer();if(e.key==="ArrowRight")openViewer(cur+1);if(e.key==="ArrowLeft")openViewer(cur-1)});
+
+/* reloj */
+const pad=n=>String(n).padStart(2,"0");
+function clock(){const d=new Date();$("#clock").textContent=`${pad(d.getDate())}.${pad(d.getMonth()+1)}.${String(d.getFullYear()).slice(2)} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+clock();setInterval(clock,1000);
+</script>
+</body>
+</html>
